@@ -1,0 +1,138 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Law Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #0073e6;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .chat-box {
+            width: 500px; /* Adjust the width */
+            height: 600px; /* Adjust the height */
+            border: 2px solid #00796b;
+            border-radius: 8px;
+            overflow-y: auto; /* Enable vertical scrolling */
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 8px 12px;
+            max-width: 80%;
+        }
+        .bot-message {
+            background-color: #ffecb3;
+            align-self: flex-start;
+            text-align: left;
+        }
+        .user-message {
+            background-color: #c8e6c9;
+            align-self: flex-end;
+            text-align: right;
+        }
+        .input-container {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background-color: #f0f0f0;
+        }
+        .input-field {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+        .send-button {
+            padding: 10px;
+            background-color: #00796b;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .send-button:hover {
+            background-color: #004d40;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        Welcome to the Law Chatbot!
+    </div>
+    <div class="chat-box" id="chat-box">
+        <div class="message bot-message">
+            Welcome to the Law Chatbot! <br>I'm here to assist you with basic legal questions. Please note that I am not a licensed attorney, and my responses are for informational purposes only.
+        </div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="user-input" class="input-field" placeholder="Type your question here...">
+        <button onclick="sendMessage()" class="send-button">Send</button>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+        if (userInput.trim() === "") return;
+
+        // Display user message
+        const userMessageDiv = document.createElement("div");
+        userMessageDiv.className = "message user-message";
+        userMessageDiv.innerText = userInput;
+        document.getElementById("chat-box").appendChild(userMessageDiv);
+
+        // Clear input field
+        document.getElementById("user-input").value = "";
+
+        // Send message to the Flask backend
+        fetch("/get_response", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display bot response
+            const botMessageDiv = document.createElement("div");
+            botMessageDiv.className = "message bot-message";
+            botMessageDiv.innerText = data.response;
+            document.getElementById("chat-box").appendChild(botMessageDiv);
+
+            // Scroll to the bottom of chat-box
+            const chatBox = document.getElementById("chat-box");
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
+</script>
+
+</body>
+</html>
